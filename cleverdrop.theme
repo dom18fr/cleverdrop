@@ -1,0 +1,495 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
+
+function cleverdrop_theme_registry_alter(&$theme_registry) {
+
+  $theme_registry['image_formatter']['variables']['view_mode'] = NULL;
+}
+
+function cleverdrop_form_system_theme_settings_alter(
+  &$form,
+  FormStateInterface $form_state
+) {
+
+  // @todo create a form with relevant settings
+  $form = [];
+}
+
+function cleverdrop_form_alter(
+  &$form,
+  FormStateInterface $form_state,
+  $form_id
+) {
+
+  if (isset($form['#entity_builders'])) {
+
+    _cleverdrop_process_field_container($form, $form_id);
+  }
+
+  if ('views_exposed_form' === $form_id) {
+
+    $form_id = str_replace('-', '_', $form['#id']);
+  }
+  _cleverdrop_set_element_form_id($form, $form_id);
+}
+
+/**
+ * Utility function used to add a reference to form_id in all form elements
+ *
+ * @param $element
+ * @param $form_id
+ */
+function _cleverdrop_set_element_form_id(&$element, $form_id) {
+
+  foreach (Element::children($element) as $element_key) {
+
+    $element[$element_key]['#parent_form_id'] = $form_id;
+    $element[$element_key]['#element_name'] = $element_key;
+    _cleverdrop_set_element_form_id($element[$element_key], $form_id);
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a form--[FORM_ID].html.twig suggestion for all forms
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+function cleverdrop_theme_suggestions_form_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $form_id = $variables['element']['#form_id'];
+
+  if ('views_exposed_form' === $form_id) {
+
+    $form_id = str_replace('-', '_', $variables['element']['#id']);
+  }
+
+  $suggestions[] = 'form__' . $form_id;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add form_element theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+function cleverdrop_theme_suggestions_form_element_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $element = $variables['element'];
+  if (isset($element['#parent_form_id'])) {
+
+    $form_id = $element['#parent_form_id'];
+    $suggestions[] = 'form_element__' . $form_id;
+  }
+
+  if (isset($element['#name'])) {
+
+    $name_attribute = $element['#name'];
+    $suggestions[] = 'form_element__' . $name_attribute;
+  }
+
+  if (isset($element['#element_name'])) {
+
+    $element_name = $element['#element_name'];
+    $suggestions[] = 'form_element__' . $element_name;
+  }
+
+  if (isset($form_id)) {
+
+    if (isset($element_name)) {
+
+      $suggestions[] = 'form_element__' . $form_id . '__' . $element_name;
+    }
+
+    if (isset($name_attribute)) {
+
+      $suggestions[] = 'form_element__' . $form_id . '__' . $name_attribute;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add fieldset theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_fieldset_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  if (isset($variables['element']['#name'])) {
+
+    $name_attribute = $variables['element']['#name'];
+    $suggestions[] = 'fieldset__' . $name_attribute;
+  }
+
+  if (isset($variables['element']['#fieldgroup_name'])) {
+
+    $fieldgroup_name_attribute = $variables['element']['#fieldgroup_name'];
+    $suggestions[] = 'fieldset__' . $fieldgroup_name_attribute;
+  }
+
+  if (isset($variables['element']['#parent_form_id'])) {
+
+    $form_id = $variables['element']['#parent_form_id'];
+    $suggestions[] = 'fieldset__' . $form_id;
+  }
+
+  if (isset($form_id) && isset($name_attribute)) {
+
+    $suggestions[] = 'fieldset__' . $form_id . '__' . $name_attribute;
+  }
+
+  if (isset($form_id) && isset($fieldgroup_name_attribute)) {
+
+    $suggestions[] = 'fieldset__' . $form_id . '__' . $fieldgroup_name_attribute;
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add checkboxes theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_checkboxes_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  if (isset($variables['element']['#name'])) {
+
+    $name_attribute = $variables['element']['#name'];
+    $suggestions[] = 'checkboxes__' . $name_attribute;
+  }
+
+  if (isset($variables['element']['#parent_form_id'])) {
+
+    $form_id = $variables['element']['#parent_form_id'];
+    $suggestions[] = 'checkboxes__' . $form_id;
+  }
+
+  if (isset($form_id) && isset($name_attribute)) {
+
+    $suggestions[] = 'checkboxes__' . $form_id . '__' . $name_attribute;
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a input theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_input_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  if (isset($variables['element']['#parent_form_id'])) {
+
+    $form_id = $variables['element']['#parent_form_id'];
+    $suggestions[] = 'input__' . $form_id;
+  }
+
+  if (isset($variables['element']['#element_name'])) {
+
+    $name = $variables['element']['#element_name'];
+    $name_attribute = $variables['element']['#name'];
+    $suggestions[] = 'input__' . $name;
+  }
+  if (isset($name) && isset($form_id)) {
+
+    $suggestions[] = 'input__' . $form_id . '__' . $name;
+
+    if (isset($name_attribute)) {
+
+      $suggestions[] = 'input__' . $form_id . '__' . $name_attribute;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a input theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_select_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  if (isset($variables['element']['#parent_form_id'])) {
+
+    $form_id = $variables['element']['#parent_form_id'];
+    $suggestions[] = 'select__' . $form_id;
+  }
+
+  if (isset($variables['element']['#element_name'])) {
+
+    $name = $variables['element']['#element_name'];
+    $name_attribute = $variables['element']['#name'];
+    $suggestions[] = 'select__' . $name;
+  }
+  if (isset($name) && isset($form_id)) {
+
+    $suggestions[] = 'select__' . $form_id . '__' . $name;
+
+    if (isset($name_attribute)) {
+
+      $suggestions[] = 'select__' . $form_id . '__' . $name_attribute;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a input theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_textarea_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  if (isset($variables['element']['#parent_form_id'])) {
+
+    $form_id = $variables['element']['#parent_form_id'];
+    $suggestions[] = 'textarea__' . $form_id;
+  }
+
+  if (isset($variables['element']['#element_name'])) {
+
+    $name = $variables['element']['#element_name'];
+    $name_attribute = $variables['element']['#name'];
+    $suggestions[] = 'textarea__' . $name;
+  }
+  if (isset($name) && isset($form_id)) {
+
+    $suggestions[] = 'textarea__' . $form_id . '__' . $name;
+
+    if (isset($name_attribute)) {
+
+      $suggestions[] = 'textarea__' . $form_id . '__' . $name_attribute;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a input theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_views_view_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'views_view';
+  /** @var \Drupal\views\Entity\View $view */
+  $view = $variables['view'];
+  $display = $view->current_display;
+  $id = $view->storage->id();
+
+  $suggestions[] = $base . '__' . $id;
+  $suggestions[] = $base . '__' . $display;
+  $suggestions[] = $base . '__' . $id . '__' . $display;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a input theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_views_view_list_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'views_view_list';
+
+  /** @var \Drupal\views\Entity\View $view */
+  $view = $variables['view'];
+  $display = $view->current_display;
+  $id = $view->storage->id();
+
+  $suggestions[] = $base . '__' . $id;
+  $suggestions[] = $base . '__' . $display;
+  $suggestions[] = $base . '__' . $id . '__' . $display;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter
+ *
+ * Add a input theme suggestions
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+
+function cleverdrop_theme_suggestions_views_view_unformatted_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'views_view_unformatted';
+
+  /** @var \Drupal\views\Entity\View $view */
+  $view = $variables['view'];
+  $display = $view->current_display;
+  $id = $view->storage->id();
+
+  $suggestions[] = $base . '__' . $id;
+  $suggestions[] = $base . '__' . $display;
+  $suggestions[] = $base . '__' . $id . '__' . $display;
+}
+
+function cleverdrop_preprocess_field(&$variables) {
+
+  $element = &$variables['element'];
+  if ('image' === $variables['field_type']) {
+
+    foreach ($variables['items'] as $delta => &$item) {
+
+      $item['content']['#view_mode'] = $element['#view_mode'];
+      $element[$delta]['#view_mode'] = $element['#view_mode'];
+    }
+  }
+}
+
+function cleverdrop_theme_suggestions_field_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'field';
+  $element = $variables['element'];
+  $entity_type = $element['#entity_type'];
+  $bundle = $element['#bundle'];
+  $field_name = $element['#field_name'];
+  $view_mode = $element['#view_mode'];
+
+  $suggestions = [];
+  $suggestions[] = $base . '__' . $field_name;
+  $suggestions[] = $base . '__' . $field_name . '__' . $entity_type;
+  $suggestions[] = $base . '__' . $field_name . '__' . $bundle;
+  $suggestions[] = $base . '__' . $field_name . '__' . $view_mode;
+  $suggestions[] = $base . '__' . $field_name . '__' . $bundle . '__' . $view_mode;
+  $suggestions[] = $base . '__' . $field_name . '__' . $entity_type . '__' . $bundle;
+  $suggestions[] = $base . '__' . $field_name . '__' . $entity_type . '__' . $bundle . '__' . $view_mode;
+}
+
+function cleverdrop_theme_suggestions_image_formatter_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'image_formatter';
+  $view_mode = isset($variables['view_mode']) ? $variables['view_mode'] : 'default';
+  /** @var ImageItem $item */
+  $item = $variables['item'];
+  $field_name = $item->getFieldDefinition()->get('field_name');
+  $entity = $item->getEntity();
+  $entity_type = $entity->getEntityTypeId();
+  $bundle = $entity->bundle();
+
+  $suggestions[] = $base . '__' . $field_name;
+  $suggestions[] = $base . '__' . $field_name . '__' . $entity_type;
+  $suggestions[] = $base . '__' . $field_name . '__' . $bundle;
+  $suggestions[] = $base . '__' . $field_name . '__' . $view_mode;
+  $suggestions[] = $base . '__' . $field_name . '__' . $bundle . '__' . $view_mode;
+  $suggestions[] = $base . '__' . $field_name . '__' . $entity_type . '__' . $bundle;
+  $suggestions[] = $base . '__' . $field_name . '__' . $entity_type . '__' . $bundle . '__' . $view_mode;
+}
+
+function _cleverdrop_process_field_container(&$form, $form_id) {
+
+  foreach(Element::children($form) as $key) {
+
+    if (
+      isset($form[$key]['widget'])
+      && isset($form[$key]['widget']['#field_name'])
+    ) {
+
+      $form[$key]['#pre_render'][] = '_clever_drop_form_widget_pre_render';
+      $form[$key]['#field_name'] = $key;
+    }
+
+    if ('actions' === $key) {
+
+      $form[$key]['#pre_render'][] = '_clever_drop_form_action_pre_render';
+    }
+  }
+}
+
+function _clever_drop_form_action_pre_render($element) {
+
+  unset($element['#type']);
+  unset($element['#theme_wrappers']);
+  $element['#theme'] = 'actions_wrapper';
+
+  return $element;
+}
+
+function _clever_drop_form_widget_pre_render($element) {
+
+  unset($element['#type']);
+  unset($element['#theme_wrappers']);
+  $element['#theme'] = 'widget_wrapper';
+
+  return $element;
+}
+
+function cleverdrop_theme_suggestions_item_list_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  if (
+    isset($variables['context'])
+    && is_string($variables['context'])
+  ) {
+
+    $suggestions[] = 'item_list__' . $variables['context'];
+  }
+}

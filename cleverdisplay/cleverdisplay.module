@@ -1,0 +1,190 @@
+<?php
+
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\Entity;
+
+function cleverdisplay_theme() {
+
+  // @todo better extend \Drupal\RenderElement\Container
+  $theme['widget_wrapper'] = [
+    'render element' => 'element',
+    'template' => 'widget-wrapper',
+  ];
+
+  // @todo better extend \Drupal\RenderElement\Actions
+  $theme['actions_wrapper'] = [
+    'render element' => 'element',
+    'template' => 'actions-wrapper',
+  ];
+
+  return $theme;
+}
+
+/**
+ * Implements hook_field_group_build_pre_render_alter().
+ *
+ * Enrich fieldgroup renderable element to later be able to set
+ * theme_hook_suggestions based on host entity context.
+ *
+ * @param $element
+ */
+function cleverdisplay_field_group_build_pre_render_alter(&$element) {
+
+  if (!isset($element['#form_id'])) {
+    $view_mode = $element['#view_mode'];
+  }
+
+  $fieldgroups = $element['#fieldgroups'];
+  $group_children =  $element['#group_children'];
+  foreach ($fieldgroups as $fieldgroup) {
+
+    if (isset($element[$fieldgroup->group_name])) {
+
+      $renderable = &$element[$fieldgroup->group_name];
+    } else {
+
+      $name = $fieldgroup->group_name;
+      $parents = [$name];
+      while (isset($group_children[$name])) {
+
+        array_unshift($parents, $group_children[$name]);
+        $name = $group_children[$name];
+      }
+      $renderable = &NestedArray::getValue($element, $parents);
+    }
+    $renderable['#fieldgroup_name'] = $fieldgroup->group_name;
+    $renderable['#entity_type'] = $fieldgroup->entity_type;
+    $renderable['#bundle'] = $fieldgroup->bundle;
+    $renderable['#view_mode'] = isset($view_mode) ? $view_mode : $fieldgroup->mode;
+  }
+}
+
+/**
+ * Implements theme_suggestions_HOOK_alter().
+ *
+ * Add theme_hook_suggestions for field_group_html_element theme hook.
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+function cleverdisplay_theme_suggestions_field_group_html_element_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'field_group_html_element';
+  _cleverdisplay_theme_suggestions_field_groups_alter(
+    $suggestions,
+    $variables,
+    $base
+  );
+}
+
+/**
+ * Implements theme_suggestions_HOOK_alter().
+ *
+ * Add theme_hook_suggestions for field_group_background_image theme hook.
+ *
+ * @param array $suggestions
+ * @param array $variables
+ */
+function cleverdisplay_theme_suggestions_field_group_background_image_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'field_group_background_image';
+  _cleverdisplay_theme_suggestions_field_groups_alter(
+    $suggestions,
+    $variables,
+    $base
+  );
+}
+
+/**
+ * @param array $suggestions
+ * @param array $variables
+ * @param $base
+ */
+function _cleverdisplay_theme_suggestions_field_groups_alter(
+  array &$suggestions,
+  array $variables,
+  $base
+) {
+
+  $element = $variables['element'];
+
+  $fieldgroup = $element['#fieldgroup_name'];
+  $entity_type = $element['#entity_type'];
+  $bundle = $element['#bundle'];
+  $view_mode = $element['#view_mode'];
+
+  $suggestions[] = $base . '__' . $fieldgroup;
+  $suggestions[] = $base . '__' . $fieldgroup . '__' . $entity_type;
+  $suggestions[] = $base . '__' . $fieldgroup . '__' . $bundle;
+  $suggestions[] = $base . '__' . $fieldgroup . '__' . $entity_type . '__' . $bundle;
+  $suggestions[] = $base . '__' . $fieldgroup . '__' . $bundle . '__' . $view_mode;
+  $suggestions[] = $base . '__' . $fieldgroup . '__' . $entity_type . '__' . $bundle . '__' . $view_mode;
+}
+
+/**
+ * @param array $suggestions
+ * @param array $variables
+ * @param $base
+ */
+function cleverdisplay_theme_suggestions_entity_linked_label_alter(
+  array &$suggestions,
+  array $variables,
+  $base
+) {
+
+  $element = $variables['element'];
+
+  $entity_type = $element['#entity_type'];
+  $bundle = $element['#bundle'];
+  $view_mode = $element['#view_mode'];
+
+  $suggestions[] = $base . '__' . $entity_type;
+  $suggestions[] = $base . '__' . $bundle;
+  $suggestions[] = $base . '__' . $entity_type . '__' . $bundle;
+  $suggestions[] = $base . '__' . $bundle . '__' . $view_mode;
+  $suggestions[] = $base . '__' . $entity_type . '__' . $bundle . '__' . $view_mode;
+}
+
+function cleverdisplay_preprocess_widget_wrapper(&$variables) {
+
+  $element = $variables['element'];
+  $variables['children'] = drupal_render_children($element);
+  $variables['attributes'] = $element['#attributes'];
+}
+
+function cleverdisplay_theme_suggestions_widget_wrapper_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $base = 'widget_wrapper';
+  $element = $variables['element'];
+
+  $name = $element['#field_name'];
+  $form_id = $element['#parent_form_id'];
+
+  $suggestions[] = $base . '__' . $name;
+  $suggestions[] = $base . '__' . $form_id;
+  $suggestions[] = $base . '__' . $form_id . '__' . $name;
+}
+
+function cleverdisplay_preprocess_actions_wrapper(&$variables) {
+
+  $element = $variables['element'];
+  $variables['children'] = drupal_render_children($element);
+  $variables['attributes'] = $element['#attributes'];
+}
+
+function cleverdisplay_theme_suggestions_actions_wrapper_alter(
+  array &$suggestions,
+  array $variables
+) {
+
+  $suggestions[] = 'actions_wrapper__' . $variables['element']['#parent_form_id'];
+}

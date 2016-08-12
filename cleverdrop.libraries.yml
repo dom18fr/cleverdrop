@@ -1,0 +1,5 @@
+common-styles:
+  version: VERSION
+  css:
+    component:
+      css/admin_ui/tabs.css: {}

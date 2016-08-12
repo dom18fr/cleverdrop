@@ -1,0 +1,57 @@
+.local-tasks {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+.local-tasks ul li a {
+  color: #555555 !important;
+  background-color: #eeeeee !important;
+  border: 1px solid #dddddd !important;
+  line-height: 1.5em !important;
+  display: block !important;
+  font-size: 16px !important;
+  padding: 0.7em !important;
+  border-radius: 0 !important;
+}
+@media screen and (max-width: 37.5em) { /* 600px */
+  .local-tasks ul {
+    border-bottom: 1px solid #bbb !important;
+  }
+  .local-tasks ul li {
+    display: block !important;
+    margin: 0 !important;
+  }
+  .local-tasks ul li a {
+    padding: 5px 10px !important;
+  }
+  .local-tasks ul li.is-active a {
+    border-bottom: none !important;
+  }
+}
+@media screen and (min-width: 37.5em) { /* 600px */
+  .local-tasks ul {
+    border-collapse: collapse !important;
+    height: auto !important;
+    line-height: normal !important;
+    padding: 0 3px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+    white-space: nowrap !important;
+  }
+  .local-tasks ul li {
+    display: block !important;
+    float: left !important; /* LTR */
+    vertical-align: bottom !important;
+    margin: 0 5px 0 0 !important; /* LTR */
+  }
+  [dir="rtl"] .tabs ul li {
+    margin: 0 0 0 5px !important;
+    float: right !important;
+  }
+  .local-tasks ul li a {
+    float: left !important; /* not LTR */
+  }
+  .local-tasks ul li.is-active a {
+    border-bottom: 1px solid #fff !important;
+  }
+}

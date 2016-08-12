@@ -1,0 +1,8 @@
+<div{{ attributes.addClass('local-tasks') }}>
+  {% if primary %}
+    <ul>{{ primary }}</ul>
+  {% endif %}
+  {% if secondary %}
+    <ul>{{ secondary }}</ul>
+  {% endif %}
+</div>
