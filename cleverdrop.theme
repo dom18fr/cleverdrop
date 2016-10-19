@@ -428,7 +428,7 @@ function cleverdrop_theme_suggestions_image_formatter_alter(
   $view_mode = isset($variables['view_mode']) ? $variables['view_mode'] : 'default';
   /** @var ImageItem $item */
   $item = $variables['item'];
-  $field_name = $item->getFieldDefinition()->get('field_name');
+  $field_name = $item->getFieldDefinition()->getName();
   $entity = $item->getEntity();
   $entity_type = $entity->getEntityTypeId();
   $bundle = $entity->bundle();
