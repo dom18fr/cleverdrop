@@ -127,8 +127,8 @@ function cleverdrop_theme_suggestions_form_element_label_alter(array &$suggestio
 
   if (isset($element['#id'])) {
 
-    $element_id = $element['#id'];
-    $suggestions[] = 'form_element_label__' . str_replace('-', '_', $element_id);
+    $element_id = str_replace('-', '_', $element['#id']);
+    $suggestions[] = 'form_element_label__' . $element_id;
   }
 
   if (isset($element_id)) {
@@ -137,7 +137,7 @@ function cleverdrop_theme_suggestions_form_element_label_alter(array &$suggestio
 
       foreach ($parents as $parent_id) {
         
-        $suggestions[] = 'form_element_label__' . $parent_id . '__' . $element_id;
+        $suggestions[] = 'form_element_label__' . str_replace('-', '_', $parent_id) . '__' . $element_id;
       }
     }
   }
