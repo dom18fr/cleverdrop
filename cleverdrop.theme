@@ -87,6 +87,15 @@ function cleverdrop_theme_suggestions_form_element_alter(array &$suggestions, ar
     $element_name = $element['#element_name'];
     $suggestions[] = 'form_element__' . $element_name;
   }
+  if (isset($element['#webform_id'])) {
+
+    $suggestions[] = 'form_element__webform_submission';
+
+    if (isset($element['#type'])) {
+
+      $suggestions[] = 'form_element__webform_submission__' . str_replace('-', '_', $element['#type']);
+    }
+  }
 
   if (isset($form_id)) {
 
@@ -169,6 +178,15 @@ function cleverdrop_theme_suggestions_fieldset_alter(array &$suggestions, array 
     $form_id = $variables['element']['#parent_form_id'];
     $suggestions[] = 'fieldset__' . $form_id;
   }
+  if (isset($variables['element']['#webform_id'])) {
+
+    $suggestions[] = 'fieldset__webform_submission';
+
+    if (isset($variables['element']['#type'])) {
+
+      $suggestions[] = 'fieldset__webform_submission__' . str_replace('-', '_', $variables['element']['#type']);
+    }
+  }
 
   if (isset($form_id) && isset($name_attribute)) {
 
@@ -230,6 +248,15 @@ function cleverdrop_theme_suggestions_input_alter(array &$suggestions, array $va
     $name_attribute = $variables['element']['#name'];
     $suggestions[] = 'input__' . $name;
   }
+  if (isset($variables['element']['#webform_id'])) {
+
+    $suggestions[] = 'input__webform_submission';
+
+    if (isset($variables['element']['#type'])) {
+
+      $suggestions[] = 'input__webform_submission__' . str_replace('-', '_', $variables['element']['#type']);
+    }
+  }
   if (isset($name) && isset($form_id)) {
 
     $suggestions[] = 'input__' . $form_id . '__' . $name;
@@ -262,6 +289,15 @@ function cleverdrop_theme_suggestions_select_alter(array &$suggestions, array $v
     $name_attribute = $variables['element']['#name'];
     $suggestions[] = 'select__' . $name;
   }
+  if (isset($variables['element']['#webform_id'])) {
+
+    $suggestions[] = 'select__webform_submission';
+
+    if (isset($variables['element']['#type'])) {
+
+      $suggestions[] = 'select__webform_submission__' . str_replace('-', '_', $variables['element']['#type']);
+    }
+  }
   if (isset($name) && isset($form_id)) {
 
     $suggestions[] = 'select__' . $form_id . '__' . $name;
@@ -293,6 +329,15 @@ function cleverdrop_theme_suggestions_textarea_alter(array &$suggestions, array 
     $name = $variables['element']['#element_name'];
     $name_attribute = $variables['element']['#name'];
     $suggestions[] = 'textarea__' . $name;
+  }
+  if (isset($variables['element']['#webform_id'])) {
+
+    $suggestions[] = 'textarea__webform_submission';
+
+    if (isset($variables['element']['#type'])) {
+
+      $suggestions[] = 'textarea__webform_submission__' . str_replace('-', '_', $variables['element']['#type']);
+    }
   }
   if (isset($name) && isset($form_id)) {
 
