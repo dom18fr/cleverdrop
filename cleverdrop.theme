@@ -513,3 +513,16 @@ function cleverdrop_theme_suggestions_item_list_alter(array &$suggestions, array
     $suggestions[] = 'item_list__' . $variables['context'];
   }
 }
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for form templates.
+ * See issue: https://www.drupal.org/node/2724333
+ * @param array $suggestions
+ * @param array $variables
+*/
+function cleverdrop_theme_suggestions_block_alter(array &$suggestions, array $variables) {
+  // Block suggestions for custom block bundles.
+  if (isset($variables['elements']['content']['#block_content'])) {
+    array_splice($suggestions, 1, 0, 'block__bundle__' . $variables['elements']['content']['#block_content']->bundle());
+  }
+}
