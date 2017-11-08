@@ -440,7 +440,8 @@ function cleverdrop_theme_suggestions_field_alter(array &$suggestions, array $va
   $field_name = $element['#field_name'];
   $view_mode = $element['#view_mode'];
 
-  $suggestions = [];
+  // @todo: do it cleaner, cf issues #15
+  //$suggestions = [];
   $suggestions[] = $base . '__' . $field_name;
   $suggestions[] = $base . '__' . $field_name . '__' . $entity_type;
   $suggestions[] = $base . '__' . $field_name . '__' . $bundle;
