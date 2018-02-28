@@ -76,10 +76,13 @@ function cleverdrop_theme_suggestions_form_element_alter(array &$suggestions, ar
     $suggestions[] = 'form_element__' . $form_id;
   }
 
-  if (isset($element['#name'])) {
-
-    $name_attribute = $element['#name'];
-    $suggestions[] = 'form_element__' . $name_attribute;
+  if (isset($element['#type'])) {
+    $suggestions[] = 'form_element__' . $element['#type'];
+    if (isset($element['#name'])) {
+      $name_attribute = str_replace(['[', ']'], ['-', ''], $element['#name']);
+      $suggestions[] = 'form_element__' . $name_attribute;
+      $suggestions[] = 'form_element__' . $name_attribute . '__' . $element['#type'];
+    }
   }
 
   if (isset($element['#element_name'])) {
