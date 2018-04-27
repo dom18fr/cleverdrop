@@ -153,6 +153,10 @@ function cleverdrop_theme_suggestions_form_element_label_alter(array &$suggestio
       }
     }
   }
+
+  if (isset($element['#parent_form_id'])) {
+    $suggestions[] = 'form_element_label__' . str_replace('-', '_', $element['#parent_form_id']);
+  }
 }
 
 /**
@@ -428,8 +432,10 @@ function cleverdrop_preprocess_field(&$variables) {
 }
 
 function cleverdrop_preprocess_form_element(&$variables) {
-  if (isset($variables['label']) && !isset($variables['label']['#array_parents'])) {
-    if (isset($variables['element']) && isset($variables['element']['#array_parents'])) {
+  if (isset($variables['label']) && isset($variables['element'])) {
+    $variables['label']['#parent_form_id'] = $variables['element']['#parent_form_id'];
+
+    if (!isset($variables['label']['#array_parents']) && isset($variables['element']['#array_parents'])) {
       $variables['label']['#array_parents'] = $variables['element']['#array_parents'];
     }
   }
