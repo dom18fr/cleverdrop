@@ -4,3 +4,4 @@ type: module
 core: 8.x
 dependencies:
 version: 8.x-1.0
+core_version_requirement: ^8 || ^9

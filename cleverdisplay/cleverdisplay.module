@@ -1,7 +1,8 @@
 <?php
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\Entity;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Render\Markup;
 
 function cleverdisplay_theme() {
 
@@ -154,7 +155,15 @@ function cleverdisplay_theme_suggestions_entity_linked_label_alter(
 function cleverdisplay_preprocess_widget_wrapper(&$variables) {
 
   $element = $variables['element'];
-  $variables['children'] = drupal_render_children($element);
+
+  $output = '';
+  foreach (Element::children($element) as $key) {
+    if (!empty($element[$key])) {
+      $output .= \Drupal::service('renderer')->render($element[$key]);
+    }
+  }
+
+  $variables['children'] = Markup::create($output);
   $variables['attributes'] = $element['#attributes'];
 }
 
@@ -177,7 +186,15 @@ function cleverdisplay_theme_suggestions_widget_wrapper_alter(
 function cleverdisplay_preprocess_actions_wrapper(&$variables) {
 
   $element = $variables['element'];
-  $variables['children'] = drupal_render_children($element);
+
+  $output = '';
+  foreach (Element::children($element) as $key) {
+    if (!empty($element[$key])) {
+      $output .= \Drupal::service('renderer')->render($element[$key]);
+    }
+  }
+
+  $variables['children'] = Markup::create($output);
   $variables['attributes'] = $element['#attributes'];
 }
 
