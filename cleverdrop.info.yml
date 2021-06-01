@@ -5,6 +5,7 @@ version: 8.1.0
 core: 8.x
 hidden: true
 core_version_requirement: ^8 || ^9
+base theme: false
 
 libraries:
   - cleverdrop/common-styles
