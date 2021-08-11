@@ -3,6 +3,8 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
+use Drupal\cleverdrop\CleverDropWidgetPreRender;
+use Drupal\cleverdrop\CleverDropActionPreRender;
 
 function cleverdrop_theme_registry_alter(&$theme_registry) {
   $theme_registry['image_formatter']['variables']['view_mode'] = NULL;
@@ -148,7 +150,7 @@ function cleverdrop_theme_suggestions_form_element_label_alter(array &$suggestio
     if (isset($parents) && is_array($parents) && count($parents) > 0) {
 
       foreach ($parents as $parent_id) {
-        
+
         $suggestions[] = 'form_element_label__' . str_replace('-', '_', $parent_id) . '__' . $element_id;
       }
     }
@@ -481,31 +483,15 @@ function _cleverdrop_process_field_container(&$form, $form_id) {
       && isset($form[$key]['widget']['#field_name'])
     ) {
 
-      $form[$key]['#pre_render'][] = '_clever_drop_form_widget_pre_render';
+      $form[$key]['#pre_render'][] =  [CleverDropWidgetPreRender::class, 'preRender'];
       $form[$key]['#field_name'] = $key;
     }
 
     if ('actions' === $key) {
 
-      $form[$key]['#pre_render'][] = '_clever_drop_form_action_pre_render';
+      $form[$key]['#pre_render'][] = [CleverDropActionPreRender::class, 'preRender'];
     }
   }
-}
-
-function _clever_drop_form_action_pre_render($element) {
-  unset($element['#type']);
-  unset($element['#theme_wrappers']);
-  $element['#theme'] = 'actions_wrapper';
-
-  return $element;
-}
-
-function _clever_drop_form_widget_pre_render($element) {
-  unset($element['#type']);
-  unset($element['#theme_wrappers']);
-  $element['#theme'] = 'widget_wrapper';
-
-  return $element;
 }
 
 function cleverdrop_theme_suggestions_item_list_alter(array &$suggestions, array $variables) {
