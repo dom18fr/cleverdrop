@@ -2,9 +2,8 @@ name: Cleverdrop
 type: theme
 description: 'Base theme by Clever age, provide common tools and minimal html'
 version: 8.1.0
-core: 8.x
 hidden: true
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 base theme: false
 
 libraries:
